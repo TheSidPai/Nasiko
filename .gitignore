@@ -1,0 +1,14 @@
+﻿# Python
+__pycache__/
+*.pyc
+.venv/
+*.egg-info/
+
+# Node
+Nasiko/talentflowHR/frontend/node_modules/
+
+# Environment — keep credentials off GitHub
+Nasiko/talentflowHR/.env
+
+# Build outputs
+Nasiko/talentflowHR/frontend/build/
