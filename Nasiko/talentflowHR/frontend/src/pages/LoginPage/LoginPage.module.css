@@ -1,0 +1,238 @@
+.page {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
+  background: var(--bg);
+}
+
+/* ── Hero ─────────────────────────────────────── */
+.hero {
+  text-align: center;
+  margin-bottom: 48px;
+}
+
+.heroLogo {
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 16px;
+}
+
+.heroTitle {
+  font-size: 42px;
+  font-weight: 800;
+  color: var(--text);
+  margin: 0 0 14px;
+  line-height: 1.1;
+}
+
+.heroSub {
+  font-size: 17px;
+  color: var(--text-muted);
+  max-width: 480px;
+  margin: 0 auto;
+  line-height: 1.6;
+}
+
+/* ── Role cards ───────────────────────────────── */
+.cards {
+  display: flex;
+  gap: 28px;
+  flex-wrap: wrap;
+  justify-content: center;
+  max-width: 860px;
+  width: 100%;
+}
+
+.roleCard {
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  padding: 36px 32px;
+  flex: 1;
+  min-width: 300px;
+  max-width: 380px;
+  cursor: pointer;
+  transition: border-color 0.2s, box-shadow 0.2s, transform 0.15s;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  text-align: left;
+}
+
+.roleCard:hover {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(100, 150, 255, 0.12), 0 8px 32px rgba(0,0,0,0.25);
+  transform: translateY(-3px);
+}
+
+.roleCardHR:hover {
+  border-color: #a78bfa;
+  box-shadow: 0 0 0 3px rgba(167,139,250,0.12), 0 8px 32px rgba(0,0,0,0.25);
+}
+
+.roleIcon {
+  font-size: 40px;
+  margin-bottom: 4px;
+}
+
+.roleTitle {
+  font-size: 21px;
+  font-weight: 700;
+  color: var(--text);
+  margin: 0;
+}
+
+.roleFeatures {
+  list-style: none;
+  padding: 0;
+  margin: 4px 0 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.roleFeatures li {
+  font-size: 14px;
+  color: var(--text-muted);
+  padding-left: 20px;
+  position: relative;
+  line-height: 1.4;
+}
+
+.roleFeatures li::before {
+  content: "✓";
+  position: absolute;
+  left: 0;
+  color: var(--accent);
+  font-weight: 700;
+}
+
+.roleCardHR .roleFeatures li::before {
+  color: #a78bfa;
+}
+
+.roleBtn {
+  margin-top: auto;
+  background: var(--accent);
+  color: #0a0f1e;
+  border: none;
+  border-radius: 10px;
+  padding: 12px 20px;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: opacity 0.2s;
+  align-self: flex-start;
+}
+
+.roleBtn:hover { opacity: 0.85; }
+
+.roleBtnHR {
+  background: #a78bfa;
+}
+
+/* ── Form card (login forms) ──────────────────── */
+.formCard {
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 44px 40px;
+  width: 100%;
+  max-width: 460px;
+  position: relative;
+}
+
+.backBtn {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  font-size: 13px;
+  cursor: pointer;
+  padding: 0;
+  margin-bottom: 24px;
+  display: inline-block;
+  transition: color 0.2s;
+}
+
+.backBtn:hover { color: var(--text); }
+
+.formIcon { font-size: 44px; margin-bottom: 12px; }
+
+.formTitle {
+  font-size: 26px;
+  font-weight: 700;
+  color: var(--text);
+  margin: 0 0 8px;
+}
+
+.formSub {
+  font-size: 14px;
+  color: var(--text-muted);
+  margin: 0 0 28px;
+  line-height: 1.5;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.label {
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+  margin-top: 10px;
+}
+
+.input {
+  background: var(--input-bg, rgba(255,255,255,0.05));
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  color: var(--text);
+  font-size: 15px;
+  padding: 11px 14px;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.input:focus { border-color: var(--accent); }
+
+.codeHint {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+
+.err {
+  font-size: 13px;
+  color: #f74f4f;
+  margin-top: 4px;
+  padding: 8px 12px;
+  background: rgba(247,79,79,0.1);
+  border-radius: 8px;
+  border: 1px solid rgba(247,79,79,0.3);
+}
+
+.submitBtn {
+  margin-top: 18px;
+  background: var(--accent);
+  color: #0a0f1e;
+  border: none;
+  border-radius: 12px;
+  padding: 14px;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.submitBtn:hover { opacity: 0.85; }

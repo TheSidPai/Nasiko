@@ -84,11 +84,14 @@ export async function storeCandidate(candidate) {
 /**
  * Fetch all candidates from MongoDB.
  * @param {string} [recommendation]  Optional filter: 'Proceed' | 'Hold' | 'Reject'
+ * @param {string} [status]          Optional status filter: 'pending' | 'approved' | 'rejected'
  */
-export async function getCandidates(recommendation) {
-  const url = recommendation
-    ? `${AGENT_URL}candidates?recommendation=${encodeURIComponent(recommendation)}`
-    : `${AGENT_URL}candidates`;
+export async function getCandidates(recommendation, status) {
+  const params = new URLSearchParams();
+  if (recommendation) params.set("recommendation", recommendation);
+  if (status) params.set("status", status);
+  const qs  = params.toString();
+  const url = qs ? `${AGENT_URL}candidates?${qs}` : `${AGENT_URL}candidates`;
   const res = await fetch(url);
   if (!res.ok) throw new Error(`Failed to fetch candidates: ${res.status}`);
   const data = await res.json();
@@ -191,6 +194,42 @@ export async function scheduleInterview({ candidateName, role, candidateEmail = 
   if (!res.ok) {
     const err = await res.json().catch(() => ({ error: res.statusText }));
     throw new Error(err.error || `Scheduling failed: ${res.status}`);
+  }
+  return res.json();
+}
+
+/**
+ * HR: approve or reject a self-applied candidate, optionally sending them an email.
+ * @param {string} candidateId  MongoDB _id
+ * @param {string} status  'approved' | 'rejected'
+ * @param {boolean} [sendEmail=true]
+ */
+export async function updateCandidateStatus(candidateId, status, sendEmail = true) {
+  const res = await fetch(`${AGENT_URL}candidates/${candidateId}/status`, {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ status, send_email: sendEmail }),
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({ error: res.statusText }));
+    throw new Error(err.error || `Status update failed: ${res.status}`);
+  }
+  return res.json();
+}
+
+/**
+ * HR: search internal employees for a role/skill match.
+ * @param {string} query  Natural language role description
+ */
+export async function searchInternalTalent(query) {
+  const res = await fetch(`${AGENT_URL}internal-search`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ query }),
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({ error: res.statusText }));
+    throw new Error(err.error || `Internal search failed: ${res.status}`);
   }
   return res.json();
 }

@@ -1,15 +1,24 @@
 import { useState, useRef, useEffect } from "react";
 import { sendToAgent } from "../../services/api";
-import { SUGGESTED_PROMPTS } from "../../constants";
+import { SUGGESTED_PROMPTS, CANDIDATE_PROMPTS } from "../../constants";
 import styles from "./ChatPage.module.css";
 
-const INITIAL_MESSAGE = {
+const HR_INITIAL_MESSAGE = {
   role: "agent",
-  text: "Hi! I'm TalentFlow. I can help with recruiting, policy questions, internal talent matching, and burnout risk. What do you need?",
+  text: "Hi! I'm TalentFlow, your AI-powered HR assistant.\n\nI can help you:\n• Screen candidates & generate interview questions\n• Check which employees are at burnout risk\n• Find internal talent for open roles\n• Draft offer or rejection emails\n• Answer company policy questions\n\nWhat do you need help with today?",
 };
 
-export default function ChatPage() {
-  const [messages, setMessages] = useState([INITIAL_MESSAGE]);
+const CANDIDATE_INITIAL_MESSAGE = {
+  role: "agent",
+  text: "Hi! I'm TalentFlow's AI assistant.\n\nI can help you prepare for your job application:\n• Understand what skills a role typically requires\n• Tips to improve your CV for a specific role\n• What to expect during the interview process\n• Common interview questions for your target role\n• Salary benchmarks and tips on negotiation\n\nWhat would you like to know?",
+};
+
+export default function ChatPage({ role = "hr" }) {
+  const isHR      = role === "hr";
+  const initMsg   = isHR ? HR_INITIAL_MESSAGE : CANDIDATE_INITIAL_MESSAGE;
+  const prompts   = isHR ? SUGGESTED_PROMPTS  : CANDIDATE_PROMPTS;
+
+  const [messages, setMessages] = useState([initMsg]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const bottomRef = useRef(null);
@@ -52,7 +61,7 @@ export default function ChatPage() {
           <div>
             <div className={styles.suggestLabel}>SUGGESTED PROMPTS</div>
             <div className={styles.suggestWrap}>
-              {SUGGESTED_PROMPTS.map((s) => (
+              {prompts.map((s) => (
                 <button key={s} className={styles.suggestBtn} onClick={() => send(s)}>
                   {s}
                 </button>
@@ -89,7 +98,7 @@ export default function ChatPage() {
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={handleKeyDown}
-            placeholder="Ask about leave policy, screen a resume, check burnout risk..."
+            placeholder={isHR ? "Ask about burnout, screen a resume, find internal talent…" : "Ask about interview tips, CV advice, role requirements…"}
             rows={1}
           />
           <button

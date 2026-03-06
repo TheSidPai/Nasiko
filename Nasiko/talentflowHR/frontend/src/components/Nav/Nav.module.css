@@ -47,3 +47,22 @@
   background: rgba(79, 142, 247, 0.15);
   color: var(--accent);
 }
+
+.logoutBtn {
+  padding: 0.4rem 1rem;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  cursor: pointer;
+  font-size: 0.875rem;
+  font-weight: 500;
+  background: transparent;
+  color: var(--muted);
+  transition: all 0.2s;
+  font-family: 'DM Sans', sans-serif;
+  margin-left: 8px;
+}
+
+.logoutBtn:hover {
+  border-color: #f74f4f;
+  color: #f74f4f;
+}

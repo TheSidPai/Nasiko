@@ -1,21 +1,49 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { AuthProvider, useAuth } from "./context/AuthContext";
 import Nav from "./components/Nav";
-import HomePage from "./pages/HomePage";
+import LoginPage from "./pages/LoginPage";
 import ChatPage from "./pages/ChatPage";
 import ResumePage from "./pages/ResumePage";
 import DashboardPage from "./pages/DashboardPage";
+import ApplyPage from "./pages/ApplyPage";
+import InternalSearchPage from "./pages/InternalSearchPage";
 import "./styles/global.css";
 
-export default function App() {
-  const [page, setPage] = useState("Home");
+function AppInner() {
+  const { auth } = useAuth();
+
+  // Default page per role
+  const defaultPage = auth?.role === "hr" ? "Dashboard" : auth?.role === "candidate" ? "Apply" : "Login";
+  const [page, setPage] = useState(defaultPage);
+
+  // When role changes (login/logout) reset page
+  useEffect(() => {
+    setPage(auth?.role === "hr" ? "Dashboard" : auth?.role === "candidate" ? "Apply" : "Login");
+  }, [auth?.role]);
+
+  if (!auth) return <LoginPage />;
 
   return (
     <div className="app">
       <Nav page={page} setPage={setPage} />
-      {page === "Home"      && <HomePage setPage={setPage} />}
-      {page === "Chat"      && <ChatPage />}
-      {page === "Resume"    && <ResumePage />}
-      {page === "Dashboard" && <DashboardPage />}
+
+      {/* ── Candidate pages ──────────────────── */}
+      {page === "Apply"  && <ApplyPage />}
+      {page === "Chat"   && <ChatPage role={auth.role} />}
+
+      {/* ── HR-only pages ────────────────────── */}
+      {page === "Dashboard"      && <DashboardPage />}
+      {page === "Screen"         && <ResumePage />}
+      {page === "InternalSearch" && <InternalSearchPage />}
+      {page === "HRChat"         && <ChatPage role="hr" />}
     </div>
+  );
+}
+
+export default function App() {
+  return (
+    <AuthProvider>
+      <AppInner />
+    </AuthProvider>
   );
 }

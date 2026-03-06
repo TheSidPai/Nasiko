@@ -4,13 +4,41 @@
 
 export const AGENT_URL = "http://localhost:5000/";
 
-export const NAV_ITEMS = ["Home", "Chat", "Resume", "Dashboard"];
+/** Nav items shown to HR / management users */
+export const NAV_HR = [
+  { key: "Dashboard",      label: "Dashboard"        },
+  { key: "Screen",         label: "Screen Resume"     },
+  { key: "InternalSearch", label: "Internal Search"   },
+  { key: "HRChat",         label: "AI Assistant"      },
+];
 
+/** Nav items shown to job applicants */
+export const NAV_CANDIDATE = [
+  { key: "Apply", label: "Apply"         },
+  { key: "Chat",  label: "Ask AI"        },
+];
+
+/** @deprecated — kept for safety, use NAV_HR or NAV_CANDIDATE instead */
+export const NAV_ITEMS = ["Dashboard", "Screen", "InternalSearch", "HRChat"];
+
+/** Suggested quick prompts for HR users */
 export const SUGGESTED_PROMPTS = [
-  "How many days of annual leave do I get?",
-  "Check burnout risk for Meena Iyer",
-  "We have an open ML Engineer role — check internally first",
-  "What is the WFH policy?",
+  "Check burnout risk for Meena Iyer and suggest what action I should take",
+  "We need to fill a Senior ML Engineer role — find the best internal match",
+  "Generate interview questions I should ask a Full Stack Developer candidate",
+  "Draft a rejection email for a candidate who scored below 50",
+  "What is our WFH policy? I need to explain it to a new joiner",
+  "Which employees are at critical burnout risk right now?",
+];
+
+/** Suggested quick prompts for job applicant (candidate) users */
+export const CANDIDATE_PROMPTS = [
+  "What skills do I need to become a Data Analyst?",
+  "How can I improve my CV for a software engineering role?",
+  "What are the most common interview questions for a Product Manager?",
+  "What should I expect in a technical interview?",
+  "What is a good fresher salary range for an ML Engineer in India?",
+  "Give me tips to negotiate my job offer confidently",
 ];
 
 // BURNOUT_DATA is now loaded live from MongoDB via /employees endpoint

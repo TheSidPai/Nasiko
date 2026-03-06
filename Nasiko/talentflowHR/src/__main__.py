@@ -54,6 +54,16 @@ class CandidateIn(BaseModel):
     recommendation: str  # Proceed / Hold / Reject
     resume_summary: str
     email: str = ""
+    status: str = "pending"          # pending | approved | rejected
+    applicant_type: str = "hr_uploaded"  # hr_uploaded | self_applied
+
+class CandidateStatusUpdate(BaseModel):
+    status: str          # approved | rejected
+    send_email: bool = True
+    email_body: str = ""  # optional override
+
+class InternalSearchRequest(BaseModel):
+    query: str           # free-text role / skill description
 
 class EmailTrackRequest(BaseModel):
     candidate_id: str
@@ -179,12 +189,14 @@ async def create_candidate(candidate: CandidateIn):
 
 
 @app.get("/candidates")
-async def list_candidates(recommendation: Optional[str] = None):
-    """List all candidates, optionally filtered by recommendation (Proceed/Hold/Reject)."""
+async def list_candidates(recommendation: Optional[str] = None, status: Optional[str] = None):
+    """List all candidates, optionally filtered by recommendation (Proceed/Hold/Reject) and/or status (pending/approved/rejected)."""
     db = get_async_db()
     query = {}
     if recommendation:
         query["recommendation"] = recommendation
+    if status:
+        query["status"] = status
     cursor = db.candidates.find(query).sort("submitted_at", -1).limit(100)
     candidates = [serialize_doc(doc) async for doc in cursor]
     return {"candidates": candidates, "total": len(candidates)}
@@ -201,9 +213,102 @@ async def delete_candidate(candidate_id: str):
     return {"message": "Candidate deleted."}
 
 
-# ---------------------------------------------------------------------------
-# Email tracking
-# ---------------------------------------------------------------------------
+@app.patch("/candidates/{candidate_id}/status")
+async def update_candidate_status(candidate_id: str, req: CandidateStatusUpdate):
+    """HR approves or rejects a self-applied candidate, optionally sending an email."""
+    from bson import ObjectId
+    db = get_async_db()
+
+    # Fetch candidate to get name, email, role
+    doc = await db.candidates.find_one({"_id": ObjectId(candidate_id)})
+    if not doc:
+        raise HTTPException(status_code=404, detail="Candidate not found.")
+
+    await db.candidates.update_one(
+        {"_id": ObjectId(candidate_id)},
+        {"$set": {"status": req.status, "reviewed_at": datetime.utcnow().isoformat()}}
+    )
+
+    email_result = None
+    if req.send_email and doc.get("email"):
+        try:
+            name = doc.get("name", "Candidate")
+            role = doc.get("role_applied", "the position")
+            if req.email_body:
+                html_body = f"<p>{req.email_body}</p>"
+                subject = "Update on your application"
+            elif req.status == "approved":
+                html_body = build_offer_email(name, role)
+                subject = f"Congratulations! Offer for {role}"
+            else:
+                html_body = build_rejection_email(name, role)
+                subject = f"Your application for {role}"
+            success = send_email(doc["email"], subject, html_body)
+            email_result = {"sent": success, "to": doc["email"]}
+            if success:
+                await db.candidates.update_one(
+                    {"_id": ObjectId(candidate_id)},
+                    {"$set": {"email_sent": True}}
+                )
+        except Exception as e:
+            email_result = {"sent": False, "error": str(e)}
+
+    return {"message": f"Candidate status updated to '{req.status}'.", "email": email_result}
+
+
+@app.post("/internal-search")
+async def internal_talent_search(req: InternalSearchRequest):
+    """Search existing employees for internal talent matching a role/skill description."""
+    db = get_async_db()
+    employees = [serialize_doc(e) async for e in db.employees.find({}).limit(200)]
+
+    if not employees:
+        return {"matches": [], "ai_summary": "No employees found in the database."}
+
+    # Build a compact profile list for the LLM
+    profiles = "\n".join(
+        f"- ID:{e.get('id','?')}, Name:{e.get('name','?')}, Role:{e.get('role','?')}"
+        for e in employees
+    )
+
+    prompt = (
+        f"You are an HR AI. A manager is looking for someone internally who fits this description:\n"
+        f"\"{req.query}\"\n\n"
+        f"Here are the current employees:\n{profiles}\n\n"
+        f"Return a JSON object with two fields:\n"
+        f"1. \"matches\": array of the top matches (max 5), each with: id, name, role, fit_score (0-100), match_reason, available (true/false)\n"
+        f"2. \"ai_summary\": 1-2 sentences summarising your recommendation (e.g. whether to hire externally or use internal resources)\n"
+        f"Respond ONLY with valid JSON, no markdown fences."
+    )
+
+    try:
+        import json, re
+        # Use the global agent instance (already running), fire a one-shot search prompt
+        raw = agent.process_message(prompt, thread_id="internal_search_oneshot")
+
+        # Strip any accidental markdown fences
+        cleaned = re.sub(r"```(?:json)?", "", raw).strip().strip("`").strip()
+        parsed = json.loads(cleaned)
+
+        matches = parsed.get("matches", [])
+        ai_summary = parsed.get("ai_summary", "")
+
+        # Enrich with burnout risk so HR can see availability
+        emp_map = {e.get("id"): e for e in employees}
+        for m in matches:
+            emp = emp_map.get(m.get("id"))
+            if emp:
+                from bson import ObjectId
+                # compute a simple risk proxy — high overtime means "busy"
+                overtime = emp.get("overtime_hrs_last_month", 0)
+                m.setdefault("available", overtime < 50)
+
+        return {"matches": matches, "ai_summary": ai_summary}
+    except Exception as e:
+        logger.error(f"Internal search error: {e}")
+        return {"matches": [], "ai_summary": f"Search failed: {str(e)}"}
+
+
 
 @app.post("/email/track")
 async def track_email(req: EmailTrackRequest):

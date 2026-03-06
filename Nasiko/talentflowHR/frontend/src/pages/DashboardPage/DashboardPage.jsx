@@ -1,5 +1,5 @@
 ﻿import { useEffect, useState } from "react";
-import { sendToAgent, getCandidates, deleteCandidate, getEmployees, sendCandidateEmail, scheduleInterview } from "../../services/api";
+import { sendToAgent, getCandidates, deleteCandidate, getEmployees, sendCandidateEmail, scheduleInterview, updateCandidateStatus } from "../../services/api";
 import { RISK_CONFIG, RISK_ORDER } from "../../constants";
 import styles from "./DashboardPage.module.css";
 
@@ -287,8 +287,10 @@ export default function DashboardPage() {
     setCLoading(true);
     setCError("");
     try {
-      const rec = filter === "all" ? undefined : filter;
-      const data = await getCandidates(rec);
+      // "pending" is a status filter, others are recommendation filters
+      const rec    = (filter === "all" || filter === "pending") ? undefined : filter;
+      const status = filter === "pending" ? "pending" : undefined;
+      const data   = await getCandidates(rec, status);
       setCandidates(data);
     } catch {
       setCError("Could not load candidates. Is the backend running?");
@@ -314,6 +316,20 @@ export default function DashboardPage() {
     setCandidates((prev) =>
       prev.map((c) => c._id === candidateId ? { ...c, email_sent: true } : c)
     );
+  }
+
+  // Approve or reject a self-applied candidate (sends email automatically)
+  async function handleDecision(candidateId, decision) {
+    const label = decision === "approved" ? "Approve" : "Reject";
+    if (!window.confirm(`${label} this candidate and send them an email?`)) return;
+    try {
+      await updateCandidateStatus(candidateId, decision, true);
+      setCandidates((prev) =>
+        prev.map((c) => c._id === candidateId ? { ...c, status: decision, email_sent: true } : c)
+      );
+    } catch (e) {
+      alert("Could not update status: " + e.message);
+    }
   }
 
   return (
@@ -457,13 +473,13 @@ export default function DashboardPage() {
       {view === "candidates" && (
         <div>
           <div className={styles.cFilterBar}>
-            {["all", "Proceed", "Hold", "Reject"].map((f) => (
+            {["all", "pending", "Proceed", "Hold", "Reject"].map((f) => (
               <button
                 key={f}
                 className={`${styles.cFilterBtn} ${cFilter === f ? styles.cFilterActive : ""}`}
                 onClick={() => setCFilter(f)}
               >
-                {f === "all" ? "All" : f}
+                {f === "all" ? "All" : f === "pending" ? "🕐 Pending Review" : f}
               </button>
             ))}
             <button className={styles.cRefreshBtn} onClick={() => loadCandidates(cFilter)}>â†» Refresh</button>
@@ -486,9 +502,31 @@ export default function DashboardPage() {
                   <div key={c._id} className={styles.cCard}>
                     <div className={styles.cCardHeader}>
                       <div className={styles.cName}>{c.name}</div>
-                      <span className={styles.cBadge} style={{ color: cfg.color, background: cfg.bg }}>
-                        {c.recommendation}
-                      </span>
+                      <div style={{ display: "flex", gap: "6px", alignItems: "center" }}>
+                        {c.applicant_type === "self_applied" && (
+                          <span className={styles.cBadge} style={{ color: "#a78bfa", background: "rgba(167,139,250,0.1)", fontSize: "11px" }}>
+                            Self-applied
+                          </span>
+                        )}
+                        {c.status === "pending" && (
+                          <span className={styles.cBadge} style={{ color: "#f7c94f", background: "rgba(247,201,79,0.1)", fontSize: "11px" }}>
+                            ⏳ Pending
+                          </span>
+                        )}
+                        {c.status === "approved" && (
+                          <span className={styles.cBadge} style={{ color: "#4ff78c", background: "rgba(79,247,140,0.08)", fontSize: "11px" }}>
+                            ✅ Approved
+                          </span>
+                        )}
+                        {c.status === "rejected" && (
+                          <span className={styles.cBadge} style={{ color: "#f74f4f", background: "rgba(247,79,79,0.08)", fontSize: "11px" }}>
+                            ❌ Rejected
+                          </span>
+                        )}
+                        <span className={styles.cBadge} style={{ color: cfg.color, background: cfg.bg }}>
+                          {c.recommendation}
+                        </span>
+                      </div>
                     </div>
                     <div className={styles.cRole}>{c.role_applied}</div>
                     <div className={styles.cScoreRow}>
@@ -505,6 +543,26 @@ export default function DashboardPage() {
                     </div>
                     {/* ── Action buttons ── */}
                     <div className={styles.cActions}>
+                      {/* HR Decision — for self-applied candidates pending review */}
+                      {c.applicant_type === "self_applied" && c.status === "pending" && (
+                        <>
+                          <button
+                            className={styles.cActionBtn}
+                            style={{ borderColor: "#4ff78c", color: "#4ff78c" }}
+                            onClick={() => handleDecision(c._id, "approved")}
+                          >
+                            ✅ Approve
+                          </button>
+                          <button
+                            className={styles.cActionBtn}
+                            style={{ borderColor: "#f74f4f", color: "#f74f4f" }}
+                            onClick={() => handleDecision(c._id, "rejected")}
+                          >
+                            ❌ Reject
+                          </button>
+                        </>
+                      )}
+                      {/* Standard actions */}
                       <button
                         className={styles.cActionBtn}
                         style={{ borderColor: "#6c63ff", color: "#6c63ff" }}
