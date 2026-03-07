@@ -593,13 +593,43 @@ def get_my_meetings(date_query: str) -> str:
             except Exception as api_err:
                 logger.warning(f"Calendar API error: {api_err}")
 
-        return json.dumps({
-            "status": "no_credentials",
-            "message": (
-                f"Google Calendar API credentials are not configured. "
-                f"To check your meetings for {date_query}, please open Google Calendar directly. "
-                f"To enable this feature, add GOOGLE_CALENDAR_CREDENTIALS_JSON to your environment."
+        # ── Fallback: return demo meetings from seeded HR schedule ──────────
+        from datetime import datetime, timedelta
+        today = datetime.now().date()
+        target_date = today + timedelta(days=1) if "tomorrow" in date_query.lower() else today
+        date_label = str(target_date)
+
+        DEMO_SCHEDULE = {
+            "today": [
+                {"time": f"{date_label} 10:00 AM", "title": "Screening Interview — Rahul Verma (Senior Backend Engineer)", "with": "rahul.verma@candidate.com", "location": "Google Meet", "duration": "45 min"},
+                {"time": f"{date_label} 12:00 PM", "title": "HR Sync — Q1 Headcount Review", "with": "hr-team@company.com", "location": "Conference Room B", "duration": "60 min"},
+                {"time": f"{date_label} 03:30 PM", "title": "Final Round — Meera Nair (Product Manager)", "with": "meera.nair@candidate.com, hiring-panel@company.com", "location": "Zoom", "duration": "60 min"},
+            ],
+            "tomorrow": [
+                {"time": f"{date_label} 09:30 AM", "title": "Onboarding Check-in — Arjun Mehta (DevOps Engineer)", "with": "arjun.mehta@company.com", "location": "HR Cabin", "duration": "30 min"},
+                {"time": f"{date_label} 11:00 AM", "title": "Technical Interview — Kavya Reddy (Data Scientist)", "with": "kavya.reddy@candidate.com", "location": "Google Meet", "duration": "60 min"},
+                {"time": f"{date_label} 02:00 PM", "title": "Exit Interview — Sameer Khan (Sales Lead)", "with": "sameer.khan@company.com", "location": "HR Office", "duration": "45 min"},
+            ],
+        }
+
+        key = "tomorrow" if "tomorrow" in date_query.lower() else "today"
+        meetings = DEMO_SCHEDULE[key]
+
+        lines = [f"MEETINGS SCHEDULED FOR {date_query.upper()} ({date_label})\n"]
+        for i, m in enumerate(meetings, 1):
+            lines.append(
+                f"{i}. {m['title']}\n"
+                f"   🕐 Time     : {m['time']} ({m['duration']})\n"
+                f"   👤 With     : {m['with']}\n"
+                f"   📍 Location : {m['location']}\n"
             )
+        lines.append("\n📌 Note: Showing demo schedule. Connect Google Calendar (add GOOGLE_CALENDAR_CREDENTIALS_JSON env var) to see live meetings.")
+        return json.dumps({
+            "status": "success",
+            "date": date_label,
+            "demo": True,
+            "text": "\n".join(lines),
+            "instruction": "Present the meetings list exactly as provided in the 'text' field, preserving all formatting."
         })
     except Exception as e:
         return json.dumps({"status": "error", "message": str(e)})

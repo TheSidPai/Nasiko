@@ -225,6 +225,84 @@ function CalendarModal({ candidate, onClose }) {
   );
 }
 
+// ── AddEmployeeModal ─────────────────────────────────────────────────────────
+
+function AddEmployeeModal({ onClose }) {
+  const [form, setForm] = useState({
+    name: "", role: "", department: "", skills: "", years_exp: "", email: ""
+  });
+  const [saving, setSaving] = useState(false);
+  const [result, setResult] = useState(null);
+
+  function handleChange(e) {
+    setForm(f => ({ ...f, [e.target.name]: e.target.value }));
+  }
+
+  async function handleSubmit() {
+    const { name, role, department, skills, years_exp } = form;
+    if (!name || !role || !department || !skills || !years_exp) {
+      alert("Please fill in Name, Role, Department, Skills and Years of Experience.");
+      return;
+    }
+    setSaving(true);
+    setResult(null);
+    try {
+      const prompt = `Add a new employee to the database: Name: ${form.name}, Role: ${form.role}, Department: ${form.department}, Skills: ${form.skills}, Years of Experience: ${form.years_exp}${form.email ? `, Email: ${form.email}` : ""}.`;
+      const reply = await sendToAgent(prompt);
+      setResult({ success: true, text: reply });
+    } catch (e) {
+      setResult({ success: false, text: e.message });
+    }
+    setSaving(false);
+  }
+
+  const fields = [
+    { label: "Full Name *",                  name: "name",       placeholder: "e.g. Priya Singh",              type: "text" },
+    { label: "Role / Job Title *",           name: "role",       placeholder: "e.g. Backend Engineer",         type: "text" },
+    { label: "Department *",                 name: "department", placeholder: "e.g. Engineering, HR, Analytics",type: "text" },
+    { label: "Skills (comma-separated) *",   name: "skills",     placeholder: "e.g. Python, React, SQL",       type: "text" },
+    { label: "Years of Experience *",        name: "years_exp",  placeholder: "e.g. 4",                        type: "number" },
+    { label: "Work Email (optional)",        name: "email",      placeholder: "priya@company.com",             type: "email" },
+  ];
+
+  return (
+    <div className={styles.modalOverlay} onClick={onClose}>
+      <div className={styles.modal} onClick={e => e.stopPropagation()}>
+        <div className={styles.modalHeader}>
+          <span>➕ Add New Employee</span>
+          <button className={styles.closeBtn} onClick={onClose}>✕</button>
+        </div>
+        <div className={styles.modalBody}>
+          {fields.map(({ label, name, placeholder, type }) => (
+            <div key={name}>
+              <label className={styles.modalLabel}>{label}</label>
+              <input
+                className={styles.modalInput}
+                type={type}
+                name={name}
+                placeholder={placeholder}
+                value={form[name]}
+                onChange={handleChange}
+              />
+            </div>
+          ))}
+          {result && (
+            <div
+              className={styles.resultBanner}
+              style={{ color: result.success ? "#4ff78c" : "#f74f4f", whiteSpace: "pre-wrap" }}
+            >
+              {result.success ? `✅ ${result.text}` : `❌ ${result.text}`}
+            </div>
+          )}
+          <button className={styles.sendBtn} onClick={handleSubmit} disabled={saving}>
+            {saving ? "Adding employee…" : "➕ Add Employee"}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function DashboardPage() {
   const [view, setView] = useState("burnout");
 
