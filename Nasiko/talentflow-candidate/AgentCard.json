@@ -1,0 +1,56 @@
+{
+    "protocolVersion": "0.2.9",
+    "name": "TalentFlow Candidate Agent",
+    "description": "A candidate-facing AI assistant that helps job seekers screen their resume against JDs, improve their CV, check application status, prepare for interviews, benchmark salaries, and negotiate job offers.",
+    "url": "http://localhost:5000/",
+    "preferredTransport": "JSONRPC",
+    "provider": {
+        "organization": "TalentFlow",
+        "url": "https://github.com/TheSidPai/Nasiko"
+    },
+    "iconUrl": "http://localhost:5000/icon.png",
+    "version": "1.0.0",
+    "documentationUrl": "http://localhost:5000/docs",
+    "capabilities": {
+        "streaming": false,
+        "pushNotifications": false,
+        "stateTransitionHistory": true,
+        "chat_agent": true
+    },
+    "securitySchemes": {},
+    "security": [],
+    "defaultInputModes": ["text/plain"],
+    "defaultOutputModes": ["text/plain"],
+    "skills": [
+        {
+            "name": "resume_screening",
+            "description": "Score a candidate's resume against a job description with fit score, matched skills, gaps, and a Proceed/Hold/Reject recommendation"
+        },
+        {
+            "name": "cv_improvement",
+            "description": "Analyze a resume and provide specific, actionable improvement suggestions with critical fixes and quick wins"
+        },
+        {
+            "name": "application_status",
+            "description": "Let candidates check the current status of their job application using their email address"
+        },
+        {
+            "name": "interview_preparation",
+            "description": "Generate tailored interview questions covering technical, behavioural, and culture-fit dimensions"
+        },
+        {
+            "name": "offer_negotiation",
+            "description": "Provide word-for-word salary negotiation scripts and fallback strategies for candidates"
+        },
+        {
+            "name": "salary_benchmarking",
+            "description": "Benchmark a salary against current market rates for a given role, experience level, and location"
+        },
+        {
+            "name": "policy_faq",
+            "description": "Answer candidate questions about company HR policies including leave, WFH, appraisals, and conduct"
+        }
+    ],
+    "supportsAuthenticatedExtendedCard": false,
+    "signatures": []
+}

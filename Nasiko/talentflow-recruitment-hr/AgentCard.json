@@ -1,0 +1,64 @@
+{
+    "protocolVersion": "0.2.9",
+    "name": "TalentFlow Recruitment HR Agent",
+    "description": "An AI-powered recruitment automation assistant for HR teams. Handles full-cycle hiring: resume screening, interview question generation, offer and rejection emails, candidate database management, pipeline tracking, salary benchmarking, and recruiter calendar check.",
+    "url": "http://localhost:5000/",
+    "preferredTransport": "JSONRPC",
+    "provider": {
+        "organization": "TalentFlow",
+        "url": "https://github.com/TheSidPai/Nasiko"
+    },
+    "iconUrl": "http://localhost:5000/icon.png",
+    "version": "1.0.0",
+    "documentationUrl": "http://localhost:5000/docs",
+    "capabilities": {
+        "streaming": false,
+        "pushNotifications": false,
+        "stateTransitionHistory": true,
+        "chat_agent": true
+    },
+    "securitySchemes": {},
+    "security": [],
+    "defaultInputModes": ["text/plain"],
+    "defaultOutputModes": ["text/plain"],
+    "skills": [
+        {
+            "name": "resume_screening",
+            "description": "Score candidate resumes against job descriptions with fit scoring, skill gap analysis, and Proceed/Hold/Reject recommendation"
+        },
+        {
+            "name": "interview_questions",
+            "description": "Generate tailored interview questions covering technical, behavioural, and culture-fit dimensions based on the candidate's resume and JD"
+        },
+        {
+            "name": "email_drafting",
+            "description": "Draft professional offer or rejection emails with warm, brand-positive tone"
+        },
+        {
+            "name": "email_sending",
+            "description": "Send real offer or rejection emails to candidates via Gmail SMTP"
+        },
+        {
+            "name": "candidate_database",
+            "description": "Save screened candidates to MongoDB and look up any candidate's application status"
+        },
+        {
+            "name": "pipeline_summary",
+            "description": "Get a full hiring pipeline overview grouped by role with Proceed/Hold/Reject breakdowns and top candidate highlights"
+        },
+        {
+            "name": "calendar_check",
+            "description": "Check today's or tomorrow's scheduled interviews from Google Calendar"
+        },
+        {
+            "name": "salary_benchmarking",
+            "description": "Benchmark a proposed salary against current market rates before making an offer"
+        },
+        {
+            "name": "policy_faq",
+            "description": "Answer HR policy questions that arise during recruitment: notice period, probation, offer terms, and conduct"
+        }
+    ],
+    "supportsAuthenticatedExtendedCard": false,
+    "signatures": []
+}

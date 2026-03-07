@@ -1,0 +1,18 @@
+services:
+  talentflow-candidate:
+    build: .
+    container_name: talentflow-candidate
+    environment:
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - MONGO_URI=${MONGO_URI}
+      - GMAIL_USER=${GMAIL_USER}
+      - GMAIL_APP_PASSWORD=${GMAIL_APP_PASSWORD}
+    stdin_open: true
+    ports:
+      - "5000"
+    tty: true
+    networks:
+      - agents-net
+networks:
+  agents-net:
+    external: true

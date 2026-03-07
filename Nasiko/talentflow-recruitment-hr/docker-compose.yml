@@ -1,0 +1,20 @@
+services:
+  talentflow-recruitment-hr:
+    build: .
+    container_name: talentflow-recruitment-hr
+    environment:
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - MONGO_URI=${MONGO_URI}
+      - GMAIL_USER=${GMAIL_USER}
+      - GMAIL_APP_PASSWORD=${GMAIL_APP_PASSWORD}
+      - GOOGLE_CALENDAR_ID=${GOOGLE_CALENDAR_ID}
+      - GOOGLE_CALENDAR_TIMEZONE=${GOOGLE_CALENDAR_TIMEZONE}
+    stdin_open: true
+    ports:
+      - "5000"
+    tty: true
+    networks:
+      - agents-net
+networks:
+  agents-net:
+    external: true

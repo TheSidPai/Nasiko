@@ -1,0 +1,68 @@
+{
+    "protocolVersion": "0.2.9",
+    "name": "TalentFlow Internal HR Agent",
+    "description": "An AI-powered people operations assistant for internal HR teams. Handles employee wellness monitoring (burnout risk), attrition prediction, internal talent mobility, onboarding plan generation, leave management, exit interview analysis, and HR policy FAQ.",
+    "url": "http://localhost:5000/",
+    "preferredTransport": "JSONRPC",
+    "provider": {
+        "organization": "TalentFlow",
+        "url": "https://github.com/TheSidPai/Nasiko"
+    },
+    "iconUrl": "http://localhost:5000/icon.png",
+    "version": "1.0.0",
+    "documentationUrl": "http://localhost:5000/docs",
+    "capabilities": {
+        "streaming": false,
+        "pushNotifications": false,
+        "stateTransitionHistory": true,
+        "chat_agent": true
+    },
+    "securitySchemes": {},
+    "security": [],
+    "defaultInputModes": ["text/plain"],
+    "defaultOutputModes": ["text/plain"],
+    "skills": [
+        {
+            "name": "burnout_risk_detection",
+            "description": "Assess individual or team burnout risk using overtime, leave gaps, open tickets, and appraisal recency data"
+        },
+        {
+            "name": "attrition_prediction",
+            "description": "Predict flight risk for individual employees or entire teams with data-backed retention strategies"
+        },
+        {
+            "name": "internal_talent_matching",
+            "description": "Match open roles against existing employee profiles to recommend internal mobility before external hiring"
+        },
+        {
+            "name": "employee_database",
+            "description": "Add new employees to MongoDB and maintain accurate employee records for downstream analytics"
+        },
+        {
+            "name": "leave_management",
+            "description": "Check employee leave entitlement, carry-forward rules, and usage based on company policy"
+        },
+        {
+            "name": "onboarding_plan",
+            "description": "Generate personalized day-by-day onboarding plans for new hires with 30/60/90-day milestones"
+        },
+        {
+            "name": "exit_interview_analysis",
+            "description": "Analyze exit interview transcripts to identify resignation root causes, sentiment, and team-level risk flags"
+        },
+        {
+            "name": "hr_email",
+            "description": "Draft and send professional HR emails to employees and candidates via Gmail"
+        },
+        {
+            "name": "policy_faq",
+            "description": "Answer employee HR policy questions on leave, WFH, appraisals, notice period, conduct, and more"
+        },
+        {
+            "name": "calendar_check",
+            "description": "Check today's or tomorrow's scheduled HR meetings from Google Calendar"
+        }
+    ],
+    "supportsAuthenticatedExtendedCard": false,
+    "signatures": []
+}
