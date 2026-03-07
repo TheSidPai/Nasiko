@@ -2,7 +2,7 @@
  * Application constants — data, config, and labels used across pages.
  */
 
-export const AGENT_URL = "http://localhost:5000/";
+export const AGENT_URL = process.env.REACT_APP_AGENT_URL || "http://localhost:5000/";
 
 /** Nav items shown to HR / management users */
 export const NAV_HR = [
