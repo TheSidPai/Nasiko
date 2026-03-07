@@ -37,10 +37,9 @@ class Agent:
             store_candidate,
 ]
 
-        # Gemini 2.5 Flash — free tier, no credit card needed
-        # Set GOOGLE_API_KEY as environment variable
+        # Gemini 2.0 Flash Lite — 1500 requests/day free, lightweight
         self.llm = ChatGoogleGenerativeAI(
-            model="gemini-2.5-flash",
+            model="gemini-2.0-flash-lite",
             temperature=0.2,
         )
 

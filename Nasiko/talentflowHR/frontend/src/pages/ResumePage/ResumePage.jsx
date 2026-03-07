@@ -1,10 +1,10 @@
-import { useRef, useState } from "react";
+﻿import { useRef, useState } from "react";
 import { sendToAgent, uploadPDF, storeCandidate, sendCandidateEmail } from "../../services/api";
 import { RESUME_MODES } from "../../constants";
 import styles from "./ResumePage.module.css";
 
-const FIT_THRESHOLD_PROCEED = 70;  // >= 70 → Proceed
-const FIT_THRESHOLD_HOLD    = 45;  // 45–69 → Hold, < 45 → Reject
+const FIT_THRESHOLD_PROCEED = 70;  // >= 70 â†’ Proceed
+const FIT_THRESHOLD_HOLD    = 45;  // 45â€“69 â†’ Hold, < 45 â†’ Reject
 
 function parseResult(text) {
   const scoreMatch = text.match(/Fit\s*Score[:\s#*]+(\d+)/i);
@@ -20,9 +20,9 @@ function parseResult(text) {
 }
 
 const REC_STYLE = {
-  Proceed: { color: "#4ff78c", bg: "rgba(79,247,140,0.12)", label: "✅ PROCEED" },
-  Hold:    { color: "#f7c94f", bg: "rgba(247,201,79,0.12)",  label: "⏸ HOLD"    },
-  Reject:  { color: "#f74f4f", bg: "rgba(247,79,79,0.12)",   label: "❌ REJECT"  },
+  Proceed: { color: "#4ff78c", bg: "rgba(79,247,140,0.12)", label: "âœ… PROCEED" },
+  Hold:    { color: "#f7c94f", bg: "rgba(247,201,79,0.12)",  label: "â¸ HOLD"    },
+  Reject:  { color: "#f74f4f", bg: "rgba(247,79,79,0.12)",   label: "âŒ REJECT"  },
 };
 
 export default function ResumePage() {
@@ -84,7 +84,7 @@ export default function ResumePage() {
         await autoSave(p);
       }
     } catch {
-      setResult("⚠️ Could not reach the agent. Make sure the backend is running on port 5000.");
+      setResult("âš ï¸ Could not reach the agent. Make sure the backend is running on port 5000.");
     }
     setLoading(false);
   }
@@ -101,7 +101,7 @@ export default function ResumePage() {
       });
       setSavedId(res?.id || null);
     } catch {
-      // silent — HR can still act via the action panel
+      // silent â€” HR can still act via the action panel
     }
   }
 
@@ -135,17 +135,17 @@ export default function ResumePage() {
           role,
         });
         if (emailRes.success) {
-          setActionMsg(`✅ Saved to database & ${emailType} email sent to ${email}`);
+          setActionMsg(`âœ… Saved to database & ${emailType} email sent to ${email}`);
         } else {
-          setActionMsg(`✅ Saved to database. ⚠️ Email failed: ${emailRes.error}`);
+          setActionMsg(`âœ… Saved to database. âš ï¸ Email failed: ${emailRes.error}`);
         }
       } else {
-        setActionMsg(`✅ Saved to database${sendEmail && !email ? " (no email — recipient address missing)" : ""}`);
+        setActionMsg(`âœ… Saved to database${sendEmail && !email ? " (no email â€” recipient address missing)" : ""}`);
       }
       setActionStatus("done");
     } catch (e) {
       setActionStatus("error");
-      setActionMsg("⚠️ Failed: " + e.message);
+      setActionMsg("âš ï¸ Failed: " + e.message);
     }
   }
 
@@ -156,7 +156,7 @@ export default function ResumePage() {
     <div className={styles.page}>
       <h2 className={styles.heading}>Resume Analyzer</h2>
       <p className={styles.subtitle}>
-        Upload a candidate's CV — AI screens it, scores it, and you confirm with one click to save &amp; email.
+        Upload a candidate's CV â€” AI screens it, scores it, and you confirm with one click to save &amp; email.
       </p>
 
       {/* Mode tabs */}
@@ -186,11 +186,11 @@ export default function ResumePage() {
           onClick={() => fileInputRef.current?.click()}
           disabled={pdfUploading}
         >
-          {pdfUploading ? "Extracting..." : "📄 Upload Candidate CV (PDF)"}
+          {pdfUploading ? "Extracting..." : "ðŸ“„ Upload Candidate CV (PDF)"}
         </button>
         {pdfFileName && (
           <span className={styles.pdfName}>
-            {pdfUploading ? `Reading ${pdfFileName}…` : `✅ ${pdfFileName}`}
+            {pdfUploading ? `Reading ${pdfFileName}â€¦` : `âœ… ${pdfFileName}`}
           </span>
         )}
       </div>
@@ -198,7 +198,7 @@ export default function ResumePage() {
       {/* Text areas */}
       <div className={styles.grid}>
         {[
-          { label: "CANDIDATE RESUME",  value: resume, setter: setResume, ph: "Paste candidate resume here — or upload a PDF above..." },
+          { label: "CANDIDATE RESUME",  value: resume, setter: setResume, ph: "Paste candidate resume here â€” or upload a PDF above..." },
           { label: "JOB DESCRIPTION",   value: jd,     setter: setJd,     ph: "Paste job description here..." },
         ].map(({ label, value, setter, ph }) => (
           <div key={label}>
@@ -215,7 +215,7 @@ export default function ResumePage() {
       </div>
 
       <button className={styles.runBtn} onClick={run} disabled={!canRun}>
-        {loading ? "Analyzing..." : `${activeLabel} →`}
+        {loading ? "Analyzing..." : `${activeLabel} â†’`}
       </button>
 
       {result && (
@@ -223,14 +223,14 @@ export default function ResumePage() {
           <div className={styles.resultLabel}>AGENT RESPONSE</div>
           <div className={styles.resultBody}>{result}</div>
 
-          {/* ── Smart Action Panel (screening mode only) ── */}
+          {/* â”€â”€ Smart Action Panel (screening mode only) â”€â”€ */}
           {mode === "screen" && parsed && actionStatus !== "done" && (
             <div className={styles.actionPanel}>
               {/* Score + recommendation */}
               <div className={styles.actionHeader}>
                 <div className={styles.scoreBox}>
                   <span className={styles.scoreNum} style={{ color: REC_STYLE[parsed.recommendation]?.color }}>
-                    {parsed.fitScore !== null ? `${parsed.fitScore}/100` : "—"}
+                    {parsed.fitScore !== null ? `${parsed.fitScore}/100` : "â€”"}
                   </span>
                   <span className={styles.scoreLabel}>Fit Score</span>
                 </div>
@@ -284,17 +284,17 @@ export default function ResumePage() {
                   disabled={actionStatus === "saving" || !candName.trim()}
                 >
                   {actionStatus === "saving"
-                    ? "Processing…"
+                    ? "Processingâ€¦"
                     : parsed.recommendation === "Proceed"
-                    ? "💾 Save & Send Offer Email"
-                    : "💾 Save & Send Rejection Email"}
+                    ? "ðŸ’¾ Save & Send Offer Email"
+                    : "ðŸ’¾ Save & Send Rejection Email"}
                 </button>
                 <button
                   className={styles.actionBtnSecondary}
                   onClick={() => handleAction(false)}
                   disabled={actionStatus === "saving" || !candName.trim()}
                 >
-                  {actionStatus === "saving" ? "…" : "📁 Save Only (No Email)"}
+                  {actionStatus === "saving" ? "â€¦" : "ðŸ“ Save Only (No Email)"}
                 </button>
               </div>
 
@@ -312,174 +312,6 @@ export default function ResumePage() {
           {actionStatus === "error" && (
             <div className={styles.actionDone} style={{ color: "#f74f4f" }}>
               {actionMsg}
-            </div>
-          )}
-        </div>
-      )}
-    </div>
-  );
-}
-
-
-export default function ResumePage() {
-  const [resume, setResume] = useState("");
-  const [jd, setJd] = useState("");
-  const [result, setResult] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [mode, setMode] = useState("screen");
-  const [pdfUploading, setPdfUploading] = useState(false);
-  const [pdfFileName, setPdfFileName] = useState("");
-  const [saveStatus, setSaveStatus] = useState(""); // '', 'saving', 'saved', 'error'
-  const fileInputRef = useRef(null);
-
-  async function handlePdfUpload(e) {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    setPdfUploading(true);
-    setPdfFileName(file.name);
-    try {
-      const text = await uploadPDF(file);
-      setResume(text);
-    } catch (err) {
-      alert("Could not extract PDF: " + err.message);
-      setPdfFileName("");
-    }
-    setPdfUploading(false);
-  }
-
-  async function run() {
-    if (!resume.trim() || !jd.trim()) return;
-    setLoading(true);
-    setResult("");
-    setSaveStatus("");
-
-    const prompts = {
-      screen: `Screen this resume against the job description and provide a full structured report.\n\nRESUME:\n${resume}\n\nJOB DESCRIPTION:\n${jd}`,
-      questions: `Generate tailored interview questions for this candidate.\n\nRESUME:\n${resume}\n\nJOB DESCRIPTION:\n${jd}`,
-      email: `Draft a professional offer email for the candidate based on this resume and JD.\n\nRESUME:\n${resume}\n\nJOB DESCRIPTION:\n${jd}`,
-    };
-
-    try {
-      const reply = await sendToAgent(prompts[mode]);
-      setResult(reply);
-    } catch {
-      setResult("⚠️ Could not reach the agent. Make sure the backend is running on port 5000.");
-    }
-    setLoading(false);
-  }
-
-  async function saveCandidate() {
-    if (!result) return;
-    setSaveStatus("saving");
-    // Extract a basic fit_score from the result text
-    const scoreMatch = result.match(/Fit Score[:\s]+(\d+)/i);
-    const fitScore = scoreMatch ? parseInt(scoreMatch[1]) : 50;
-    const recMatch = result.match(/\b(Proceed|Hold|Reject)\b/i);
-    const recommendation = recMatch ? recMatch[1] : "Hold";
-    // Use first 300 chars of result as summary
-    const summary = result.replace(/[#*`]/g, "").slice(0, 300);
-
-    try {
-      await storeCandidate({
-        name: "Candidate (from Resume Page)",
-        role_applied: jd.slice(0, 60) + "...",
-        fit_score: fitScore,
-        recommendation,
-        resume_summary: summary,
-        email: "",
-      });
-      setSaveStatus("saved");
-    } catch {
-      setSaveStatus("error");
-    }
-  }
-
-  const activeLabel = RESUME_MODES.find((m) => m.id === mode)?.label ?? "";
-  const canRun = resume.trim() && jd.trim() && !loading;
-
-  return (
-    <div className={styles.page}>
-      <h2 className={styles.heading}>Resume Analyzer</h2>
-      <p className={styles.subtitle}>
-        Upload a PDF or paste text — screen resumes, generate interview questions, or draft emails.
-      </p>
-
-      {/* Mode tabs */}
-      <div className={styles.tabs}>
-        {RESUME_MODES.map((m) => (
-          <button
-            key={m.id}
-            className={`${styles.tab} ${mode === m.id ? styles.tabActive : ""}`}
-            onClick={() => setMode(m.id)}
-          >
-            {m.label}
-          </button>
-        ))}
-      </div>
-
-      {/* PDF Upload */}
-      <div className={styles.pdfRow}>
-        <input
-          ref={fileInputRef}
-          type="file"
-          accept=".pdf"
-          style={{ display: "none" }}
-          onChange={handlePdfUpload}
-        />
-        <button
-          className={styles.pdfBtn}
-          onClick={() => fileInputRef.current?.click()}
-          disabled={pdfUploading}
-        >
-          {pdfUploading ? "Extracting..." : "📄 Upload Resume PDF"}
-        </button>
-        {pdfFileName && (
-          <span className={styles.pdfName}>
-            {pdfUploading ? `Reading ${pdfFileName}…` : `✅ ${pdfFileName}`}
-          </span>
-        )}
-      </div>
-
-      {/* Text areas */}
-      <div className={styles.grid}>
-        {[
-          { label: "RESUME",          value: resume, setter: setResume, ph: "Paste candidate resume here — or upload a PDF above..." },
-          { label: "JOB DESCRIPTION", value: jd,     setter: setJd,     ph: "Paste job description here..." },
-        ].map(({ label, value, setter, ph }) => (
-          <div key={label}>
-            <div className={styles.label}>{label}</div>
-            <textarea
-              className={styles.textarea}
-              value={value}
-              onChange={(e) => setter(e.target.value)}
-              placeholder={ph}
-              rows={12}
-            />
-          </div>
-        ))}
-      </div>
-
-      <button className={styles.runBtn} onClick={run} disabled={!canRun}>
-        {loading ? "Analyzing..." : `${activeLabel} →`}
-      </button>
-
-      {result && (
-        <div className={styles.result}>
-          <div className={styles.resultLabel}>AGENT RESPONSE</div>
-          <div className={styles.resultBody}>{result}</div>
-
-          {mode === "screen" && (
-            <div className={styles.saveRow}>
-              <button
-                className={styles.saveBtn}
-                onClick={saveCandidate}
-                disabled={saveStatus === "saving" || saveStatus === "saved"}
-              >
-                {saveStatus === "saving" && "Saving…"}
-                {saveStatus === "saved" && "✅ Saved to Database"}
-                {saveStatus === "error" && "⚠️ Save Failed"}
-                {saveStatus === "" && "💾 Save Candidate to Database"}
-              </button>
             </div>
           )}
         </div>
