@@ -37,9 +37,9 @@ class Agent:
             store_candidate,
 ]
 
-        # Gemini 2.0 Flash Lite — 1500 requests/day free, lightweight
+        # Gemini 2.0 Flash — 1500 requests/day free, fast and capable
         self.llm = ChatGoogleGenerativeAI(
-            model="gemini-2.0-flash-lite",
+            model="gemini-2.5-flash-lite",
             temperature=0.2,
         )
 
