@@ -39,7 +39,7 @@ class Agent:
 
         # Gemini 2.0 Flash — 1500 requests/day free, fast and capable
         self.llm = ChatGoogleGenerativeAI(
-            model="gemini-2.5-flash-lite",
+            model="gemini-2.0-flash",
             temperature=0.2,
         )
 
