@@ -1,6 +1,9 @@
 # Stage 1: Build React app
 FROM node:20-alpine AS build
 
+ARG REACT_APP_AGENT_URL
+ENV REACT_APP_AGENT_URL=$REACT_APP_AGENT_URL
+
 WORKDIR /app
 COPY package.json ./
 RUN npm install
