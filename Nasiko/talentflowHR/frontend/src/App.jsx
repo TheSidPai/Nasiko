@@ -7,6 +7,8 @@ import ResumePage from "./pages/ResumePage";
 import DashboardPage from "./pages/DashboardPage";
 import ApplyPage from "./pages/ApplyPage";
 import InternalSearchPage from "./pages/InternalSearchPage";
+import OnboardingPage from "./pages/OnboardingPage";
+import ExitInterviewPage from "./pages/ExitInterviewPage";
 import "./styles/global.css";
 
 function AppInner() {
@@ -35,6 +37,8 @@ function AppInner() {
       {page === "Dashboard"      && <DashboardPage />}
       {page === "Screen"         && <ResumePage />}
       {page === "InternalSearch" && <InternalSearchPage />}
+      {page === "Onboarding"     && <OnboardingPage />}
+      {page === "ExitInterview"  && <ExitInterviewPage />}
       {page === "HRChat"         && <ChatPage role="hr" />}
     </div>
   );

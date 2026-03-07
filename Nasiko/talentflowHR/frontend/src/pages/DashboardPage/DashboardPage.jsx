@@ -245,7 +245,17 @@ export default function DashboardPage() {
   // ── Modal state ────────────────────────────────────────────
   const [emailModal, setEmailModal] = useState(null);
   const [calModal, setCalModal]     = useState(null);
+  // ── Attrition state ──────────────────────────────────────
+  const [attritionText,    setAttritionText]    = useState("");
+  const [attritionLoading, setAttritionLoading] = useState(false);
 
+  // ── Meetings state ───────────────────────────────────────
+  const [meetingsText,    setMeetingsText]    = useState("");
+  const [meetingsLoading, setMeetingsLoading] = useState(false);
+  const [meetingsDay,     setMeetingsDay]     = useState("");
+
+  // ── Add Employee modal ───────────────────────────────────
+  const [addEmpModal, setAddEmpModal] = useState(false);
   // Load employees from MongoDB on mount
   useEffect(() => {
     async function load() {
@@ -298,8 +308,36 @@ export default function DashboardPage() {
     setCLoading(false);
   }
 
+  async function loadAttrition() {
+    setAttritionText("");
+    setAttritionLoading(true);
+    try {
+      const reply = await sendToAgent(
+        "Predict attrition risk for all employees. Give me a full team report with risk scores, key signals, and concrete retention strategies for each person."
+      );
+      setAttritionText(reply);
+    } catch {
+      setAttritionText("⚠️ Could not load attrition data. Is the backend running on port 5000?");
+    }
+    setAttritionLoading(false);
+  }
+
+  async function loadMeetings(day) {
+    setMeetingsDay(day);
+    setMeetingsText("");
+    setMeetingsLoading(true);
+    try {
+      const reply = await sendToAgent(`What meetings or interviews do I have scheduled for ${day}?`);
+      setMeetingsText(reply);
+    } catch {
+      setMeetingsText("⚠️ Could not load meetings. Is the backend running on port 5000?");
+    }
+    setMeetingsLoading(false);
+  }
+
   useEffect(() => {
     if (view === "candidates") loadCandidates(cFilter);
+    if (view === "attrition")  loadAttrition();
   }, [view, cFilter]);
 
   async function handleDelete(id) {
@@ -347,10 +385,20 @@ export default function DashboardPage() {
           onClose={() => setCalModal(null)}
         />
       )}
-      <h2 className={styles.heading}>HR Dashboard</h2>
-      <p className={styles.subtitle}>
-        Live burnout risk from MongoDB Â· candidate pipeline Â· all AI-powered.
-      </p>
+      {addEmpModal && (
+        <AddEmployeeModal onClose={() => setAddEmpModal(false)} />
+      )}
+      <div className={styles.dashHeadRow}>
+        <div>
+          <h2 className={styles.heading}>HR Dashboard</h2>
+          <p className={styles.subtitle}>
+            Live burnout &amp; attrition risk · candidate pipeline · meetings — all AI-powered.
+          </p>
+        </div>
+        <button className={styles.addEmpBtn} onClick={() => setAddEmpModal(true)}>
+          ➕ Add Employee
+        </button>
+      </div>
 
       {/* View toggle */}
       <div className={styles.viewTabs}>
@@ -365,8 +413,18 @@ export default function DashboardPage() {
           onClick={() => setView("candidates")}
         >
           ðŸ‘¥ Candidates Pipeline
+        </button>        <button
+          className={`${styles.viewTab} ${view === "attrition" ? styles.viewTabActive : ""}`}
+          onClick={() => setView("attrition")}
+        >
+          🚪 Attrition Risk
         </button>
-      </div>
+        <button
+          className={`${styles.viewTab} ${view === "meetings" ? styles.viewTabActive : ""}`}
+          onClick={() => setView("meetings")}
+        >
+          📅 My Meetings
+        </button>      </div>
 
       {/* â”€â”€ BURNOUT VIEW â”€â”€ */}
       {view === "burnout" && (
@@ -585,6 +643,55 @@ export default function DashboardPage() {
                 );
               })}
             </div>
+          )}
+        </div>
+      )}
+
+      {/* ── ATTRITION RISK VIEW ── */}
+      {view === "attrition" && (
+        <div>
+          <div className={styles.attrHeader}>
+            <p className={styles.attrSubtitle}>
+              AI flight-risk prediction based on tenure, workload, appraisal patterns and leave engagement signals.
+            </p>
+            <button className={styles.cRefreshBtn} onClick={loadAttrition}>↻ Refresh</button>
+          </div>
+          {attritionLoading && <div className={styles.cEmpty}>Analysing attrition signals for all employees…</div>}
+          {!attritionLoading && attritionText && (
+            <div className={styles.attrResult}>{attritionText}</div>
+          )}
+          {!attritionLoading && !attritionText && (
+            <div className={styles.cEmpty}>Loading attrition risk analysis…</div>
+          )}
+        </div>
+      )}
+
+      {/* ── MEETINGS VIEW ── */}
+      {view === "meetings" && (
+        <div>
+          <p className={styles.subtitle} style={{ marginBottom: "1.25rem" }}>
+            Fetch today or tomorrow’s scheduled interviews and meetings from Google Calendar.
+          </p>
+          <div className={styles.meetBtns}>
+            <button
+              className={`${styles.viewTab} ${meetingsDay === "today" ? styles.viewTabActive : ""}`}
+              onClick={() => loadMeetings("today")}
+            >
+              📅 Today
+            </button>
+            <button
+              className={`${styles.viewTab} ${meetingsDay === "tomorrow" ? styles.viewTabActive : ""}`}
+              onClick={() => loadMeetings("tomorrow")}
+            >
+              📆 Tomorrow
+            </button>
+          </div>
+          {meetingsLoading && <div className={styles.cEmpty}>Fetching meetings…</div>}
+          {!meetingsLoading && meetingsText && (
+            <div className={styles.attrResult}>{meetingsText}</div>
+          )}
+          {!meetingsLoading && !meetingsText && !meetingsDay && (
+            <div className={styles.cEmpty}>Select Today or Tomorrow to see your schedule.</div>
           )}
         </div>
       )}

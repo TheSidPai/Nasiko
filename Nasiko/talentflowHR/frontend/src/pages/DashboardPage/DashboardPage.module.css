@@ -541,3 +541,63 @@
   opacity: 0.5;
   cursor: not-allowed;
 }
+
+/* ── Dashboard header row ──────────────────────────────────────────── */
+.dashHeadRow {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+}
+.dashHeadRow .heading  { margin-bottom: 0.4rem; }
+.dashHeadRow .subtitle { margin-bottom: 2rem; }
+
+.addEmpBtn {
+  flex-shrink: 0;
+  padding: 0.55rem 1.2rem;
+  border-radius: 10px;
+  border: 1px solid #6c63ff;
+  background: rgba(108, 99, 255, 0.1);
+  color: #6c63ff;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: 'DM Sans', sans-serif;
+  white-space: nowrap;
+  transition: background 0.15s;
+  margin-top: 0.25rem;
+}
+.addEmpBtn:hover { background: rgba(108, 99, 255, 0.2); }
+
+/* ── Attrition / Meetings result box ──────────────────────────────── */
+.attrResult {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 1.75rem;
+  font-size: 0.88rem;
+  line-height: 1.8;
+  white-space: pre-wrap;
+  color: var(--text);
+}
+
+.attrHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.attrSubtitle {
+  color: var(--muted);
+  font-size: 0.9rem;
+  margin: 0;
+}
+
+/* ── Meetings day buttons ──────────────────────────────────────────── */
+.meetBtns {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+}
