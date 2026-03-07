@@ -1,20 +1,44 @@
 services:
-  talentflow-hr:
-    build: .
-    container_name: talentflow-hr
-    environment:
-      - GOOGLE_API_KEY=${GOOGLE_API_KEY}
-      - MONGO_URI=${MONGO_URI}
-      - GMAIL_USER=${GMAIL_USER}
-      - GMAIL_APP_PASSWORD=${GMAIL_APP_PASSWORD}
-      - GOOGLE_CALENDAR_ID=${GOOGLE_CALENDAR_ID}
-      - GOOGLE_CALENDAR_TIMEZONE=${GOOGLE_CALENDAR_TIMEZONE}
-    stdin_open: true
+  mongodb:
+    image: mongo:7
+    container_name: talentflow-mongodb
+    restart: unless-stopped
     ports:
-      - "5000"
-    tty: true
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
     networks:
       - agents-net
+
+  backend:
+    build: .
+    container_name: talentflow-backend
+    restart: unless-stopped
+    environment:
+      - GOOGLE_API_KEY=${GOOGLE_API_KEY}
+      - MONGO_URI=mongodb://mongodb:27017
+    ports:
+      - "5000:5000"
+    depends_on:
+      - mongodb
+    networks:
+      - agents-net
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: talentflow-frontend
+    restart: unless-stopped
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend
+    networks:
+      - agents-net
+
+volumes:
+  mongo_data:
 
 networks:
   agents-net:
