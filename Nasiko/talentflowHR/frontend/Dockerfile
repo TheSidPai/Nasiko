@@ -1,7 +1,7 @@
 # Stage 1: Build React app
 FROM node:20-alpine AS build
 
-ARG REACT_APP_AGENT_URL
+ARG REACT_APP_AGENT_URL=https://nasiko-production.up.railway.app/
 ENV REACT_APP_AGENT_URL=$REACT_APP_AGENT_URL
 
 WORKDIR /app
