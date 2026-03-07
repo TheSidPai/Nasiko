@@ -1,0 +1,52 @@
+{
+    "protocolVersion": "0.2.9",
+    "name": "TalentFlow HR Agent",
+    "description": "An intelligent HR automation agent that handles full-cycle recruitment, internal talent matching, employee policy FAQs, and burnout risk detection.",
+    "url": "http://localhost:5000/",
+    "preferredTransport": "JSONRPC",
+    "provider": {
+        "organization": "TalentFlow",
+        "url": "https://github.com/TheSidPai/Nasiko"
+    },
+    "iconUrl": "http://localhost:5000/icon.png",
+    "version": "1.0.0",
+    "documentationUrl": "http://localhost:5000/docs",
+    "capabilities": {
+        "streaming": false,
+        "pushNotifications": false,
+        "stateTransitionHistory": true,
+        "chat_agent": true
+    },
+    "securitySchemes": {},
+    "security": [],
+    "defaultInputModes": ["text/plain"],
+    "defaultOutputModes": ["text/plain"],
+    "skills": [
+        {
+            "name": "resume_screening",
+            "description": "Screen candidate resumes against job descriptions with fit scoring and skill gap analysis"
+        },
+        {
+            "name": "interview_questions",
+            "description": "Generate tailored interview questions based on candidate resume and role requirements"
+        },
+        {
+            "name": "email_drafting",
+            "description": "Draft professional offer or rejection emails for candidates"
+        },
+        {
+            "name": "internal_talent_matching",
+            "description": "Match open roles against existing employee profiles before posting externally"
+        },
+        {
+            "name": "policy_faq",
+            "description": "Answer employee HR policy questions from the official policy document"
+        },
+        {
+            "name": "burnout_risk_detection",
+            "description": "Assess employee burnout risk and recommend HR interventions"
+        }
+    ],
+    "supportsAuthenticatedExtendedCard": false,
+    "signatures": []
+}
