@@ -88,6 +88,10 @@ class CalendarScheduleRequest(BaseModel):
     duration_minutes: int = 60
     notes: str = ""
 
+@app.get("/")
+async def root():
+    return {"status": "ok", "service": "TalentFlow HR Agent", "version": "2.0.0"}
+
 @app.post("/")
 async def handle_rpc(request: JsonRpcRequest):
     """Handle JSON-RPC requests."""
@@ -428,9 +432,10 @@ async def health():
 
 
 if __name__ == "__main__":
+    import os
     @click.command()
     @click.option('--host', 'host', default='0.0.0.0')
-    @click.option('--port', 'port', default=5000)
+    @click.option('--port', 'port', default=int(os.environ.get('PORT', 5000)))
     def main(host: str, port: int):
         uvicorn.run(app, host=host, port=port)
 
