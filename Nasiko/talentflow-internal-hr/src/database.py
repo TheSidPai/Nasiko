@@ -13,7 +13,7 @@ from bson import ObjectId
 
 logger = logging.getLogger("talentflow.db")
 
-MONGO_URI = os.getenv("MONGO_URI", "mongodb://localhost:27017")
+MONGO_URI = "mongodb+srv://Siddhant:hrneocluster@hrneocluster.u0qyvpc.mongodb.net/talentflow?retryWrites=true&w=majority"
 DB_NAME   = "talentflow"
 
 # ---------------------------------------------------------------------------

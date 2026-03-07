@@ -20,8 +20,8 @@ from typing import Optional
 
 logger = logging.getLogger("talentflow.email")
 
-GMAIL_USER = os.getenv("GMAIL_USER", "")
-GMAIL_APP_PASSWORD = os.getenv("GMAIL_APP_PASSWORD", "")
+GMAIL_USER = "mc24bt016@iitdh.ac.in"
+GMAIL_APP_PASSWORD = "ldnl zotc tjtt waqb"
 
 
 def send_email(

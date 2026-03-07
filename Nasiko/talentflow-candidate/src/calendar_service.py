@@ -22,9 +22,9 @@ from typing import Optional
 
 logger = logging.getLogger("talentflow.calendar")
 
-CREDENTIALS_PATH = os.getenv("GOOGLE_CALENDAR_CREDENTIALS_JSON", "")
-CALENDAR_ID = os.getenv("GOOGLE_CALENDAR_ID", "primary")
-CALENDAR_TIMEZONE = os.getenv("GOOGLE_CALENDAR_TIMEZONE", "Asia/Kolkata")
+CREDENTIALS_PATH = ""
+CALENDAR_ID = "primary"
+CALENDAR_TIMEZONE = "Asia/Kolkata"
 
 
 def _format_google_datetime(dt: datetime) -> str:
