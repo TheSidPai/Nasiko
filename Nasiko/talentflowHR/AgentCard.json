@@ -6,7 +6,7 @@
     "preferredTransport": "JSONRPC",
     "provider": {
         "organization": "TalentFlow",
-        "url": "https://github.com/YOUR_USERNAME/talentflow-hr-agent"
+        "url": "https://github.com/TheSidPai/Nasiko"
     },
     "iconUrl": "http://localhost:5000/icon.png",
     "version": "1.0.0",
