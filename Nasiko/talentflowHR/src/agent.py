@@ -1,14 +1,14 @@
 """
 Core agent logic — TalentFlow HR Agent
-Swapped from OpenAI to Google Gemini (free tier via langchain-google-genai).
+Powered by OpenAI GPT-4o via langchain-openai.
 """
 import os
 from dotenv import load_dotenv
-load_dotenv()  # Loads GOOGLE_API_KEY from .env file automatically
+load_dotenv()  # Loads OPENAI_API_KEY from .env file automatically
 
 from typing import List, Dict, Any
 
-from langchain_google_genai import ChatGoogleGenerativeAI
+from langchain_openai import ChatOpenAI
 from langgraph.prebuilt import create_react_agent
 from langgraph.checkpoint.memory import MemorySaver
 
@@ -37,9 +37,9 @@ class Agent:
             store_candidate,
 ]
 
-        # Gemini 2.0 Flash — 1500 requests/day free, fast and capable
-        self.llm = ChatGoogleGenerativeAI(
-            model="gemini-2.0-flash",
+        # GPT-4o-mini — fast, cost-efficient, strong tool-calling support
+        self.llm = ChatOpenAI(
+            model="gpt-4o-mini",
             temperature=0.2,
         )
 
@@ -95,7 +95,7 @@ You are TalentFlow v2 — production-ready, integrated with MongoDB, and built t
         config = {"configurable": {"thread_id": thread_id}}
         result = self.agent.invoke({"messages": [("user", message_text)]}, config=config)
         content = result["messages"][-1].content
-        # Gemini can return a list of content parts instead of a plain string
+        # OpenAI returns a plain string; list fallback kept for safety
         if isinstance(content, list):
             return "".join(
                 part["text"] if isinstance(part, dict) else str(part)
