@@ -25,6 +25,13 @@ from tools import (
     send_email_to_candidate,
     get_my_meetings,
     add_employee_to_database,
+    check_leave_balance,
+    generate_onboarding_plan,
+    predict_attrition_risk,
+    benchmark_salary,
+    analyze_exit_interview,
+    advise_offer_negotiation,
+    get_pipeline_summary,
 )
 
 class Agent:
@@ -45,6 +52,13 @@ class Agent:
             send_email_to_candidate,
             get_my_meetings,
             add_employee_to_database,
+            check_leave_balance,
+            generate_onboarding_plan,
+            predict_attrition_risk,
+            benchmark_salary,
+            analyze_exit_interview,
+            advise_offer_negotiation,
+            get_pipeline_summary,
         ]
 
         # GPT-4o-mini — fast, cost-efficient, strong tool-calling support
@@ -87,6 +101,22 @@ YOUR CAPABILITIES
 
 6. CALENDAR AND MEETINGS
 - Check today's or tomorrow's scheduled interviews using the get_my_meetings tool
+
+7. EMPLOYEE SELF-SERVICE
+- Check leave balance and entitlement using the check_leave_balance tool
+- Attrition risk prediction for an individual or full team using the predict_attrition_risk tool
+
+8. WORKFORCE INTELLIGENCE
+- Predict attrition risk with data-backed retention strategies
+- Benchmark salaries against current market rates using the benchmark_salary tool
+- Analyze exit interview transcripts for root causes and team risk flags using analyze_exit_interview
+- Get a full hiring pipeline summary by role using the get_pipeline_summary tool
+
+9. ONBOARDING
+- Generate personalized day-by-day onboarding plans for new hires using generate_onboarding_plan
+
+10. CANDIDATE NEGOTIATION SUPPORT
+- Advise candidates on salary negotiation with word-for-word scripts using advise_offer_negotiation
 
 FORMATTING RULES — VERY IMPORTANT
 - NEVER use markdown in your responses. No **, no ##, no ---, no backticks, no asterisks.

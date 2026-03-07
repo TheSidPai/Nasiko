@@ -666,3 +666,391 @@ def add_employee_to_database(
             "status": "error",
             "message": f"Could not add employee to database: {str(e)}",
         })
+
+
+# ---------------------------------------------------------------------------
+# TOOL 13 — Check Leave Balance
+# ---------------------------------------------------------------------------
+
+@tool
+def check_leave_balance(employee_identifier: str) -> str:
+    """
+    Check the leave balance and entitlement for an employee.
+    Use this when an employee asks how many leaves they have left.
+
+    Args:
+        employee_identifier: Employee name or ID.
+    """
+    employees = _get_employees_from_db()
+    employee = None
+    for e in employees:
+        if employee_identifier.lower() in e["name"].lower() or employee_identifier.upper() == e.get("id", ""):
+            employee = e
+            break
+
+    if not employee:
+        return json.dumps({
+            "status": "not_found",
+            "message": f"Employee '{employee_identifier}' not found in the database."
+        })
+
+    joining_month = None
+    added_at = employee.get("added_at", "")
+    if added_at:
+        try:
+            joining_month = datetime.fromisoformat(added_at).month
+        except Exception:
+            joining_month = None
+
+    annual_entitlement = 18
+    sick_entitlement = 10
+    if joining_month and joining_month > 10:
+        annual_entitlement = 3
+
+    days_since_leave = employee.get("days_since_last_leave", 0)
+    tenure_years = employee.get("tenure_years", 1)
+
+    return json.dumps({
+        "tool": "check_leave_balance",
+        "employee": {
+            "name": employee["name"],
+            "role": employee.get("role", ""),
+            "tenure_years": tenure_years,
+            "days_since_last_leave": days_since_leave,
+        },
+        "policy_entitlement": {
+            "annual_leave_days": annual_entitlement,
+            "sick_leave_days": sick_entitlement,
+            "carry_forward_max": 5,
+            "maternity_leave_weeks": 26,
+            "paternity_leave_days": 5,
+        },
+        "instruction": (
+            f"You are an HR assistant giving {employee['name']} their leave entitlement summary.\n"
+            "Present this clearly in plain text with no markdown:\n"
+            "LEAVE BALANCE SUMMARY\n"
+            "Annual Leave: X days entitlement per year\n"
+            "Sick Leave: X days entitlement per year\n"
+            "Carry Forward: Up to 5 unused annual leave days\n"
+            f"Note: Last leave was {days_since_leave} days ago. "
+            "Remind them to apply via the HRMS portal at least 3 working days in advance. "
+            "Note that actual days taken this year would need to be tracked in HRMS for a precise remaining balance."
+        )
+    })
+
+
+# ---------------------------------------------------------------------------
+# TOOL 14 — Generate Onboarding Plan
+# ---------------------------------------------------------------------------
+
+@tool
+def generate_onboarding_plan(role: str, start_date: str, department: str = "") -> str:
+    """
+    Generate a personalized day-by-day onboarding plan for a new hire.
+    Use this when HR needs to create an onboarding schedule for a new employee.
+
+    Args:
+        role: The job title of the new hire (e.g. ML Engineer, Frontend Developer).
+        start_date: The joining date (e.g. March 15, 2026).
+        department: The department they are joining (optional).
+    """
+    return json.dumps({
+        "tool": "generate_onboarding_plan",
+        "role": role,
+        "start_date": start_date,
+        "department": department,
+        "instruction": (
+            f"You are an expert HR onboarding specialist. Create a detailed onboarding plan for a new {role} "
+            f"joining on {start_date}{' in the ' + department + ' department' if department else ''}.\n\n"
+            "ONBOARDING PLAN\n\n"
+            "DAY 1 - Welcome and Orientation\n"
+            "- List 4-5 specific activities (IT setup, team intro, policy walkthrough, etc.)\n\n"
+            "DAY 2-3 - Role Immersion\n"
+            "- List role-specific activities tailored to the job title\n\n"
+            "WEEK 1 END - First Check-in\n"
+            "- Manager 1:1 agenda, key questions to ask\n\n"
+            "WEEK 2-4 - Ramp Up\n"
+            "- First project/task recommendations, key stakeholders to meet\n\n"
+            "30-DAY MILESTONE\n"
+            "- What success looks like at 30 days\n\n"
+            "60-DAY MILESTONE\n"
+            "- Expected independence and contributions\n\n"
+            "90-DAY MILESTONE\n"
+            "- Full productivity benchmark and first performance check-in\n\n"
+            "Keep it specific to the role. Plain text only, no markdown."
+        )
+    })
+
+
+# ---------------------------------------------------------------------------
+# TOOL 15 — Predict Attrition Risk
+# ---------------------------------------------------------------------------
+
+@tool
+def predict_attrition_risk(employee_identifier: str) -> str:
+    """
+    Predict attrition (resignation) risk for an employee based on their profile data.
+    Use this when HR wants to proactively identify flight-risk employees.
+
+    Args:
+        employee_identifier: Employee name or ID (e.g. 'Priya Sharma' or 'E001'), or 'all' for full team.
+    """
+    employees = _get_employees_from_db()
+
+    if employee_identifier.lower() == "all":
+        targets = employees
+    else:
+        targets = [
+            e for e in employees
+            if employee_identifier.lower() in e["name"].lower() or employee_identifier.upper() == e.get("id", "")
+        ]
+        if not targets:
+            return json.dumps({"status": "not_found", "message": f"Employee '{employee_identifier}' not found."})
+
+    profiles = json.dumps([
+        {
+            "name": e["name"],
+            "role": e.get("role", ""),
+            "tenure_years": e.get("tenure_years", 0),
+            "overtime_hrs_last_month": e.get("overtime_hrs_last_month", 0),
+            "days_since_last_leave": e.get("days_since_last_leave", 0),
+            "last_appraisal_months_ago": e.get("last_appraisal_months_ago", 0),
+            "open_tickets": e.get("open_tickets", 0),
+        }
+        for e in targets
+    ], indent=2)
+
+    return json.dumps({
+        "tool": "predict_attrition_risk",
+        "profiles": profiles,
+        "instruction": (
+            "You are an HR data analyst specializing in attrition prediction.\n"
+            "For each employee, analyze their signals and return:\n\n"
+            "ATTRITION RISK REPORT\n\n"
+            "For each person:\n"
+            "Name and Role:\n"
+            "Attrition Risk: Low / Medium / High / Critical\n"
+            "Risk Score: X/100\n"
+            "Key Risk Signals: (2-3 data-backed reasons)\n"
+            "Retention Strategy: (2-3 specific, actionable steps HR should take immediately)\n\n"
+            "Use these scoring guidelines:\n"
+            "- Tenure under 1 year or over 8 years = elevated risk\n"
+            "- Overtime over 40hrs/month = high stress signal\n"
+            "- No leave in over 90 days = disengagement signal\n"
+            "- No appraisal in over 12 months = recognition gap\n"
+            "End with a team attrition risk summary if multiple employees shown.\n"
+            "Plain text only, no markdown."
+        )
+    })
+
+
+# ---------------------------------------------------------------------------
+# TOOL 16 — Benchmark Salary
+# ---------------------------------------------------------------------------
+
+@tool
+def benchmark_salary(role: str, years_experience: int, location: str = "India", current_salary: str = "") -> str:
+    """
+    Benchmark a salary against current market rates for a given role and experience level.
+    Use this when HR asks if a salary is competitive, or when a candidate wants to know market rates.
+
+    Args:
+        role: Job title (e.g. React Developer, Data Scientist, Product Manager).
+        years_experience: Years of relevant experience.
+        location: City or country for market context (default: India).
+        current_salary: The salary being evaluated (optional, e.g. '14LPA' or '$120k').
+    """
+    return json.dumps({
+        "tool": "benchmark_salary",
+        "role": role,
+        "years_experience": years_experience,
+        "location": location,
+        "current_salary": current_salary,
+        "instruction": (
+            f"You are a compensation specialist with deep knowledge of {location} tech salary benchmarks.\n"
+            f"Evaluate the market rate for a {role} with {years_experience} years of experience in {location}.\n"
+            f"{'The salary being evaluated is: ' + current_salary + chr(10) if current_salary else ''}"
+            "\nSALARY BENCHMARK REPORT\n\n"
+            f"Role: {role}\n"
+            f"Experience: {years_experience} years\n"
+            f"Market: {location}\n\n"
+            "Market Range:\n"
+            "- Entry band (P25): X\n"
+            "- Median (P50): X\n"
+            "- Senior band (P75): X\n"
+            "- Top of market (P90): X\n\n"
+            f"{'Verdict on ' + current_salary + ': Below market / Competitive / Above market' + chr(10) if current_salary else ''}"
+            "Key Factors Affecting This Range: (skills in demand, location premium, company size)\n\n"
+            "Recommendation: What the company should offer to attract and retain this profile.\n"
+            "Plain text only, no markdown. Use LPA for India, USD/year for US."
+        )
+    })
+
+
+# ---------------------------------------------------------------------------
+# TOOL 17 — Analyze Exit Interview
+# ---------------------------------------------------------------------------
+
+@tool
+def analyze_exit_interview(transcript: str, employee_role: str = "") -> str:
+    """
+    Analyze an exit interview transcript to surface reasons for resignation,
+    sentiment, and team-level risk flags.
+    Use this when HR wants to extract insights from an employee's exit interview.
+
+    Args:
+        transcript: The full text of the exit interview conversation or notes.
+        employee_role: The role of the departing employee (optional, for context).
+    """
+    return json.dumps({
+        "tool": "analyze_exit_interview",
+        "transcript": transcript,
+        "employee_role": employee_role,
+        "instruction": (
+            "You are an HR analytics specialist analyzing an exit interview to extract actionable insights.\n\n"
+            "EXIT INTERVIEW ANALYSIS\n\n"
+            "OVERALL SENTIMENT: Positive / Neutral / Negative / Mixed\n\n"
+            "PRIMARY RESIGNATION REASONS\n"
+            "Categorize into: Compensation / Career Growth / Management / Work-Life Balance / "
+            "Culture / Role Clarity / External Opportunity / Personal Reasons\n"
+            "For each identified reason, give a 1-sentence quote or paraphrase from the transcript.\n\n"
+            "TEAM AND MANAGEMENT RISK FLAGS\n"
+            "- Flag any signals that suggest systemic issues (not just personal)\n"
+            "- Example: If manager style is mentioned negatively, flag team retention risk\n\n"
+            "SENTIMENT BREAKDOWN\n"
+            "- Feelings about team: Positive / Negative\n"
+            "- Feelings about role: Positive / Negative\n"
+            "- Feelings about company: Positive / Negative\n"
+            "- Would recommend company: Yes / No / Maybe\n\n"
+            "RECOMMENDED HR ACTIONS\n"
+            "1. Immediate action (this week)\n"
+            "2. Policy or process change to address root cause\n"
+            "3. Team follow-up steps\n\n"
+            "Plain text only, no markdown."
+        )
+    })
+
+
+# ---------------------------------------------------------------------------
+# TOOL 18 — Advise Offer Negotiation
+# ---------------------------------------------------------------------------
+
+@tool
+def advise_offer_negotiation(
+    current_offer: str,
+    desired_salary: str,
+    role: str,
+    years_experience: int,
+    competing_offer: str = "",
+) -> str:
+    """
+    Provide a negotiation strategy and script for a candidate negotiating a job offer.
+    Use this when a candidate wants advice on how to negotiate their salary.
+
+    Args:
+        current_offer: The offer received (e.g. '10 LPA', '$90k').
+        desired_salary: What the candidate wants (e.g. '13 LPA', '$110k').
+        role: The job title being offered.
+        years_experience: Candidate's years of experience.
+        competing_offer: A competing offer if any (optional).
+    """
+    return json.dumps({
+        "tool": "advise_offer_negotiation",
+        "current_offer": current_offer,
+        "desired_salary": desired_salary,
+        "role": role,
+        "years_experience": years_experience,
+        "competing_offer": competing_offer,
+        "instruction": (
+            f"You are a career coach helping a {role} with {years_experience} years of experience "
+            f"negotiate their salary from {current_offer} to {desired_salary}."
+            f"{' They have a competing offer of: ' + competing_offer if competing_offer else ''}\n\n"
+            "OFFER NEGOTIATION ADVICE\n\n"
+            "SITUATION ASSESSMENT\n"
+            f"- Current offer: {current_offer}\n"
+            f"- Target: {desired_salary}\n"
+            f"- Gap: (calculate the difference)\n"
+            "- Is this ask reasonable? (Yes/No with 1-sentence reason based on market knowledge)\n\n"
+            "NEGOTIATION STRATEGY\n"
+            "- Approach: (Collaborative / Firm / Flexible)\n"
+            "- Your strongest leverage points: (list 2-3)\n"
+            "- What to lead with in the conversation\n\n"
+            "WORD-FOR-WORD SCRIPT\n"
+            "Opening line: (exact words to say when starting the negotiation)\n"
+            "If they push back: (exact words to hold your position)\n"
+            "Closing: (how to land the conversation positively)\n\n"
+            "FALLBACK OPTIONS\n"
+            "If they cannot meet the salary, suggest 2-3 alternatives to negotiate "
+            "(signing bonus, extra leave, remote work, faster review cycle, etc.)\n\n"
+            "Be direct, realistic, and encouraging. Plain text only."
+        )
+    })
+
+
+# ---------------------------------------------------------------------------
+# TOOL 19 — Get Hiring Pipeline Summary
+# ---------------------------------------------------------------------------
+
+@tool
+def get_pipeline_summary(role_filter: str = "") -> str:
+    """
+    Get a summary of the hiring pipeline showing all candidates grouped by stage.
+    Use this when HR asks for an overview of the current hiring pipeline,
+    optionally filtered by role.
+
+    Args:
+        role_filter: Filter by a specific role name (optional). Leave empty for all roles.
+    """
+    try:
+        from database import get_sync_db
+        db = get_sync_db()
+        query = {}
+        if role_filter:
+            query["role_applied"] = {"$regex": role_filter, "$options": "i"}
+        candidates = list(db.candidates.find(query, {"_id": 0}))
+
+        if not candidates:
+            msg = f"No candidates found{' for ' + role_filter if role_filter else ''} in the pipeline."
+            return json.dumps({"status": "empty", "message": msg})
+
+        from collections import defaultdict
+        by_role = defaultdict(lambda: {"Proceed": [], "Hold": [], "Reject": [], "pending": [], "approved": [], "rejected": []})
+        for c in candidates:
+            role = c.get("role_applied", "Unknown")
+            rec = c.get("recommendation", "Hold")
+            status = c.get("status", "pending")
+            entry = {"name": c.get("name", "?"), "fit_score": c.get("fit_score", 0), "status": status, "email_sent": c.get("email_sent", False)}
+            by_role[role][rec].append(entry)
+
+        summary = {}
+        for role, buckets in by_role.items():
+            summary[role] = {
+                "total": sum(len(v) for v in buckets.values()),
+                "proceed": len(buckets["Proceed"]),
+                "hold": len(buckets["Hold"]),
+                "reject": len(buckets["Reject"]),
+                "approved": len(buckets["approved"]),
+                "rejected": len(buckets["rejected"]),
+                "pending_review": len(buckets["pending"]),
+                "candidates": buckets["Proceed"] + buckets["Hold"],
+            }
+
+        return json.dumps({
+            "tool": "get_pipeline_summary",
+            "pipeline": summary,
+            "total_candidates": len(candidates),
+            "instruction": (
+                "You are an HR analyst presenting the hiring pipeline to a recruiter.\n"
+                "Present clearly in plain text:\n\n"
+                "HIRING PIPELINE SUMMARY\n\n"
+                "For each role show:\n"
+                "Role name: X total candidates\n"
+                "- Proceed: X | Hold: X | Reject: X\n"
+                "- Approved: X | Pending Review: X\n"
+                "- Top candidates (name and fit score) from Proceed bucket\n\n"
+                "End with a one-line overall pipeline health comment.\n"
+                "Plain text only, no markdown."
+            )
+        })
+    except Exception as e:
+        return json.dumps({"status": "error", "message": str(e)})
