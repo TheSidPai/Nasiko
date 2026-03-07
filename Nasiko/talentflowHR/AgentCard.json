@@ -2,15 +2,15 @@
     "protocolVersion": "0.2.9",
     "name": "TalentFlow HR Agent",
     "description": "An intelligent HR automation agent that handles full-cycle recruitment, internal talent matching, employee policy FAQs, and burnout risk detection.",
-    "url": "http://localhost:5000/",
+    "url": "https://nasiko-production.up.railway.app/",
     "preferredTransport": "JSONRPC",
     "provider": {
         "organization": "TalentFlow",
         "url": "https://github.com/TheSidPai/Nasiko"
     },
-    "iconUrl": "http://localhost:5000/icon.png",
+    "iconUrl": "https://nasiko-production.up.railway.app/icon.png",
     "version": "1.0.0",
-    "documentationUrl": "http://localhost:5000/docs",
+    "documentationUrl": "https://nasiko-production.up.railway.app/docs",
     "capabilities": {
         "streaming": false,
         "pushNotifications": false,
