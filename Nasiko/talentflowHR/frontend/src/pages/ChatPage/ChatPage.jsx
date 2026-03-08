@@ -36,10 +36,10 @@ export default function ChatPage({ role = "hr" }) {
     try {
       const reply = await sendToAgent(msg);
       setMessages((prev) => [...prev, { role: "agent", text: reply }]);
-    } catch {
+    } catch (err) {
       setMessages((prev) => [
         ...prev,
-        { role: "agent", text: "⚠️ Could not reach the agent. Make sure the backend is running on port 5000." },
+        { role: "agent", text: `⚠️ Could not reach the agent. ${err.message || "Please check the backend is running."}` },
       ]);
     }
     setLoading(false);
